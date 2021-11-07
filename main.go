@@ -23,7 +23,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	wac.SetClientVersion(2, 2123, 7)
+	wac.SetClientVersion(3, 2123, 7)
 
 	WhatsappModel := WhatsappModel{
 		whatsappConnect: wac,
@@ -108,6 +108,13 @@ func (WhatsappModel WhatsappModel) readLastSession() whatsapp.Session {
 }
 
 func (WhatsappModel WhatsappModel) loginWhatsapp(w http.ResponseWriter, r *http.Request) {
+
+	err := WhatsappModel.whatsappConnect.Logout()
+
+	if err != nil {
+		return
+	}
+
 	qr := make(chan string)
 
 	go func() {
