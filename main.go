@@ -123,10 +123,22 @@ func (WhatsappModel WhatsappModel) loginWhatsapp(w http.ResponseWriter, r *http.
 	qr := make(chan string)
 
 	go func() {
-		err := qrcode.WriteFile(<- qr, qrcode.Medium, 256, "scan_qr_ini.png")
+		if r.URL.Query().Get("import") == "image" {
+			err := qrcode.WriteFile(<-qr, qrcode.Medium, 256, "scan_qr_ini.png")
 
-		if err != nil {
-			fmt.Println(err.Error())
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+		}else{
+			data := struct {
+				QrCode string `json:"qr_code"`
+			}{
+				QrCode: <-qr,
+			}
+
+			file, _ := json.MarshalIndent(data, "", " ")
+
+			_ = ioutil.WriteFile("qrcode.json", file, 0644)
 		}
 	}()
 
