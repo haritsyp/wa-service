@@ -123,6 +123,8 @@ func (WhatsappModel WhatsappModel) loginWhatsapp(w http.ResponseWriter, r *http.
 		log.Panic(err)
 	}
 
+	err = wac.SetClientName("Harits", "HYP", "1.0")
+
 	wac.SetClientVersion(3, 2123, 7)
 
 	WhatsappModel.whatsappConnect = wac
