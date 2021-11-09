@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	qrcodeTerminal "github.com/Baozisoftware/qrcode-terminal-go"
 	"github.com/Rhymen/go-whatsapp"
 	"github.com/skip2/go-qrcode"
 	"io/ioutil"
@@ -19,6 +20,12 @@ type WhatsappModel struct {
 
 func main() {
 	wac, err := whatsapp.NewConn(100 * time.Second)
+
+	err = wac.SetClientName("Harits", "HYP", "1.0")
+
+	if err != nil {
+		log.Panic(err)
+	}
 
 	if err != nil {
 		log.Panic(err)
@@ -129,7 +136,10 @@ func (WhatsappModel WhatsappModel) loginWhatsapp(w http.ResponseWriter, r *http.
 			if err != nil {
 				fmt.Println(err.Error())
 			}
-		}else{
+		} else if r.URL.Query().Get("import") == "console" {
+			obj := qrcodeTerminal.New2(qrcodeTerminal.ConsoleColors.BrightWhite,qrcodeTerminal.ConsoleColors.BrightBlack,qrcodeTerminal.QRCodeRecoveryLevels.Low)
+			obj.Get([]byte(<-qr)).Print()
+		} else {
 			data := struct {
 				QrCode string `json:"qr_code"`
 			}{
