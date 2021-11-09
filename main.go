@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Rhymen/go-whatsapp"
+	"github.com/skip2/go-qrcode"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -109,24 +110,24 @@ func (WhatsappModel WhatsappModel) readLastSession() whatsapp.Session {
 
 func (WhatsappModel WhatsappModel) loginWhatsapp(w http.ResponseWriter, r *http.Request) {
 
-	err := WhatsappModel.whatsappConnect.Logout()
+	wac, err := whatsapp.NewConn(100 * time.Second)
 
 	if err != nil {
-		return
+		log.Panic(err)
 	}
+
+	wac.SetClientVersion(3, 2123, 7)
+
+	WhatsappModel.whatsappConnect = wac
 
 	qr := make(chan string)
 
 	go func() {
-		data := struct {
-			QrCode string `json:"qr_code"`
-		}{
-			QrCode: <-qr,
+		err := qrcode.WriteFile(<- qr, qrcode.Medium, 256, "scan_qr_ini.png")
+
+		if err != nil {
+			fmt.Println(err.Error())
 		}
-
-		file, _ := json.MarshalIndent(data, "", " ")
-
-		_ = ioutil.WriteFile("qrcode.json", file, 0644)
 	}()
 
 	session, err := WhatsappModel.whatsappConnect.Login(qr)
